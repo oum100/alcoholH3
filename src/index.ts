@@ -1,14 +1,11 @@
 import express from 'express'
 import testRoutes from './routes/testRoutes'
-import productRoutes from './routes/productRoutes'
 import alcoholH3 from './routes/alcoholH3'
 
 const app = express()
 
 //เรียกใช้ route
 app.use("/api",testRoutes)
-
-app.use("/api",productRoutes)
 
 app.use("/api/h3/v1.0.0",alcoholH3)
 

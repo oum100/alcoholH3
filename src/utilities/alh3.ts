@@ -86,4 +86,72 @@ export function parseUnit(unit:number):string {
   return data_unit
 }
 
+export function parseStatus(status:number):string {
+  let result = ''
+
+  switch(status){
+    case 0:
+      result = '(0)Normal'
+      break;
+    case 1:
+      result = '(1)Drinking'
+      break;
+    case 2:
+      result = '(2)Drunk'
+      break;  
+  }
+  return result
+}
+
+export function parseAscii(data: Uint8Array):string{
+  let result =''
+
+  // console.log("data ",data)
+  for (let i = 0; i < data.length; i++) {
+    result = result + String.fromCharCode(data[i]);
+  }
+
+  return result
+}
+
+export function parseLanguage(data:Uint8Array):string{
+  console.log("Data now: ",data)
+  return data[2]==0?'Chinese':'English'
+}
+
+export function parseMode(data:Uint8Array):string{
+  console.log("Data now: ",data)
+  return data[3]==0?'Continuous':'Fast'
+}
+
+export function parseWord(data:Uint8Array):string{
+  //convert 2 byte hex data to decimal
+  const dec2hex = anyBase(anyBase.DEC, anyBase.HEX);
+  const hex2dec = anyBase(anyBase.HEX, anyBase.DEC);
+
+  let hexStr =''
+  data.forEach( (value)=> {
+    hexStr = hexStr+dec2hex(String(value)).toString().padStart(2,"0")
+  })
+
+  // return parseInt(
+  //   dec2hex(String(data[0])) + dec2hex(String(data[1])),
+  //   16
+  // ).toString()
+
+  return hex2dec(hexStr)
+
+}
+
+export function parseTimestamp(data:Uint8Array):string{
+  const dec2hex = anyBase(anyBase.DEC, anyBase.HEX);
+  const hex2dec = anyBase(anyBase.HEX, anyBase.DEC);
+
+  let hexStr =''
+  data.forEach( (value)=> {
+    hexStr = hexStr+dec2hex(String(value)).toString().padStart(2,"0")
+  })
+ 
+  return hex2dec(hexStr) // second value
+}
 

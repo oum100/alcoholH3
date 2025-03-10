@@ -12,6 +12,25 @@ export interface H3data{
     checkSum:number
 }
 
+export interface H3status {
+    hexStr:Uint8Array
+    command: string
+    status:string  
+}
+
+export interface H3lastRec {
+    hexStr:Uint8Array
+    command: string
+    recordID:string 
+}
+
+export interface H3lastSetTime {
+    hexStr:Uint8Array
+    command: string
+    timeInSecond: string
+    lastSet:string  //convert Hex to Ascii
+}
+
 export interface H3model {
     hexStr:Uint8Array
     command: string
@@ -34,13 +53,13 @@ export interface H3info{
     unit:string
 }
 
-export interface H3result{
-    hexStr:Uint8Array
-    command: string
-    resultStatus : string
-    value: string
-    unit: string
-    record: string
+export interface H3report{
+    hexStr:Uint8Array   
+    command: string 
+    status : string // byte[0] 
+    value: string //byte[1] byte[2]
+    unit: string //byte[3]
+    record: string //byte[4] byte[5]
 }
 
 export interface H3record{
