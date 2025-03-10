@@ -12,14 +12,17 @@ This for parse hex string that returen from AlcohalH3 device support command.
 
 Command syntax: BC FC <command> <dataLen> <data> <checksum mod 256>
 
-To calculate checksum mod 256. Sum all data then the result mod with 256 = checksum value
+#To calculate checksum mod 256. 
+### Sum all data then the result mod with 256 = checksum value
+```
 Ex: <data> = 68 DF 3C 30
     sum = 06
     checksum = 1B3 % 256 = B3
+```
 
 
 
-To install dependencies:
+#To install dependencies:
 
 ```bash
 bun install
