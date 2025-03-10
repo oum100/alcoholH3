@@ -8,8 +8,8 @@
     "jsx": "preserve",
 
     //Module Resolution
-    "rootDir": "./src",
-    "outDir": "./dist",
+    "rootDir": "src",
+    "outDir": "dist",
     "allowJs": true,
 
     // Bundler mode
