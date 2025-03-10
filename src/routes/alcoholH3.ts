@@ -56,15 +56,22 @@ router.post("/parseH3", (req: Request, res: Response): void => {
     //Create Dec Array
     const { hexstr } = req.body;
     const result = hexStringToUint8Array(hexstr);
-    console.log("body: ", hexstr);
+    const decArray = Array.from(result)
+    const hexArray = Array.from(result, byte => byte.toString(16).padStart(2, '0'))
+
+    // console.log("ResultHex: ",hexArray)
+
+    // console.log("body: ", hexstr);
+    // console.log("result: ",result)
 
     //Getting data part
     const h3data = createH3data(result);
-    console.log("H3data", h3data);
+    // console.log("H3data", h3data);
 
     const command = h3data.command;
-    const rawData = h3data.data;
-    console.log("rawData", rawData);
+    // const rawData = h3data.data;
+    // console.log("rawData", rawData);
+
     let tempValue: string = "";
 
     switch (command) {
@@ -78,8 +85,11 @@ router.post("/parseH3", (req: Request, res: Response): void => {
 
         res.status(200).json({
           success: true,
-          input_data: h3data,
-          result: status,
+          request: {
+            decArray: decArray,
+            hexArray: hexArray
+          },
+          response: status,
         });        
         break;
 
@@ -98,8 +108,11 @@ router.post("/parseH3", (req: Request, res: Response): void => {
 
         res.status(200).json({
           success: true,
-          input_data: h3data,
-          result: info,
+          request: {
+            decArray: decArray,
+            hexArray: hexArray
+          },
+          response: info,
         });
         break;
 
@@ -114,8 +127,11 @@ router.post("/parseH3", (req: Request, res: Response): void => {
 
         res.status(200).json({
           success: true,
-          input_data: h3data,
-          result: model,
+          request: {
+            decArray: decArray,
+            hexArray: hexArray
+          },
+          response: model,
         });
         break;
 
@@ -130,8 +146,11 @@ router.post("/parseH3", (req: Request, res: Response): void => {
 
         res.status(200).json({
           success: true,
-          input_data: h3data,
-          result: serial,
+          request: {
+            decArray: decArray,
+            hexArray: hexArray
+          },
+          response: serial,
         });
         break;
 
@@ -156,8 +175,11 @@ router.post("/parseH3", (req: Request, res: Response): void => {
 
         res.status(200).json({
           success: true,
-          input_data: h3data,
-          result: lastSet,
+          request: {
+            decArray: decArray,
+            hexArray: hexArray
+          },
+          response: lastSet,
         });        
         break
 
@@ -165,15 +187,18 @@ router.post("/parseH3", (req: Request, res: Response): void => {
         //Test hex: BCFD060203E8EB
 
       const lastRec:H3lastRec = {
-        hexStr: hexstr,
+        hexStr:hexstr,
         command: String(h3data.command),
         recordID: parseWord(h3data.data)          
       }
 
       res.status(200).json({
         success: true,
-        input_data: h3data,
-        result: lastRec,
+        request: {
+          decArray: decArray,
+          hexArray: hexArray
+        },
+        response: lastRec,
       });       
         break
 
@@ -197,8 +222,11 @@ router.post("/parseH3", (req: Request, res: Response): void => {
 
         res.status(200).json({
           success: true,
-          input_data: h3data,
-          result: report,
+          request: {
+            decArray: decArray,
+            hexArray: hexArray
+          },
+          response: report,
         });
 
         break;
@@ -238,8 +266,11 @@ router.post("/parseH3", (req: Request, res: Response): void => {
 
         res.status(200).json({
           success: true,
-          input_data: h3data,
-          result: record,
+          request: {
+            decArray: decArray,
+            hexArray: hexArray
+          },
+          response: record,
         });
         break;
     }

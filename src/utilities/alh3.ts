@@ -3,6 +3,8 @@ import anyBase from "any-base";
 import { H3info, H3model, H3serial, H3record, H3data } from "../models/alh3";
 
 export function hexStringToUint8Array(hexString: string): Uint8Array {
+  const dec2hex = anyBase(anyBase.DEC, anyBase.HEX)
+
   // Remove any spaces or non-hex characters
   hexString = hexString.replace(/\s/g, "");
 
@@ -16,10 +18,15 @@ export function hexStringToUint8Array(hexString: string): Uint8Array {
 
   // Fill the array with byte values
   for (let i = 0; i < hexString.length; i += 2) {
+    
     array[i / 2] = parseInt(hexString.substr(i, 2), 16);
   }
-
+  
   return array;
+}
+
+function uint8ArrayToHexStringArray(values: Uint8Array) {
+  return Array.from(values, byte => byte.toString(16).padStart(2, '0'));
 }
 
 export function addLeadingZero(num: number) {
