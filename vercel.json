@@ -12,8 +12,12 @@
       ],
       "routes": [
         {
-          "src": "/(.*)",         
-          "dest": "dist/index.js" 
+          "src": "/api/(.*)", 
+          "dest": "src/index.ts" 
+        },
+        {
+          "src": "/api/h3/v1.0.0/(.*)", 
+          "dest": "src/index.ts" 
         }
       ]
 

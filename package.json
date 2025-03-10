@@ -10,11 +10,11 @@
   },
   "private": true,
   "scripts": {
-    "build": "tsc", 
+    "build": "tsc -b", 
     "dev": "bun --watch src/index.ts",
     "start": "node dist/index.js"
   },
-  "type": "module",
+  
   "dependencies": {
     "@prisma/client": "^6.4.1",
     "@supabase/supabase-js": "^2.49.1",
