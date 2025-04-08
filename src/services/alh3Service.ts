@@ -1,60 +1,47 @@
-import { createClient } from "@supabase/supabase-js";
-import dotenv from "dotenv";
 import express from "express";
+import { Request, Response } from "express";
+import { validateRequest } from "../models/alh3";
 import {
-  validateRequest,
   H3data,
-  H3record,
-  H3serial,
-  H3model,
   H3info,
-  H3report,
-  H3status,
   H3lastRec,
-  H3lastSetTime
+  H3lastSetTime,
+  H3model,
+  H3record,
+  H3report,
+  H3serial,
+  H3status,
 } from "../models/alh3";
-
-//Importe type
-import { Router, Request, Response } from "express";
 import {
   hexStringToUint8Array,
-  addLeadingZero,
+  checksum8mod256,
   createH3data,
-  parseUnit,
-  parseStatus,
   parseAscii,
   parseLanguage,
   parseMode,
+  parseStatus,
   parseTimestamp,
-  parseWord
+  parseUnit,
+  parseWord,
+  addLeadingZero,
 } from "../utilities/alh3";
+// import * as h3Func from '../utilities/alh3'
 
-//Create route instance
-const router = Router();
-router.use(express.json());
-// const supabaseUrl: string = String(process.env.SUPABASE_URL);
-// const supabaseKey: string = String(process.env.SUPABASE_KEY);
-// const supabase = createClient(supabaseUrl, supabaseKey);
-
-dotenv.config()
-router.get("/", (_: Request, res: Response): void => {
-  res.send(process.env.SUPABASE_URL);
-});
-
-router.post("/h3/v1.0.0/parseH3", (req: Request, res: Response): void => {
-
+export const parseALH3 = async (req: Request, _: Response) => {
   const { error } = validateRequest(req.body);
 
   if (error) {
-    res.status(400).send(error?.details[0].message);
+    return error?.details[0].message;
   }
 
   try {
     //Create Dec Array
     const { hexstr } = req.body;
     const result = hexStringToUint8Array(hexstr);
-    const decArray = Array.from(result)
-    const hexArray = Array.from(result, byte => byte.toString(16).padStart(2, '0'))
+    const decArray = Array.from(result);
+    const hexArray = Array.from(result, (byte) =>
+      byte.toString(16).padStart(2, "0")
+    );
 
     //Getting data part
     const h3data = createH3data(result);
@@ -62,25 +49,25 @@ router.post("/h3/v1.0.0/parseH3", (req: Request, res: Response): void => {
     //Getting command code
     const command = h3data.command;
 
-    let tempValue: string = "";
+    // let tempValue: string = "";
 
     switch (command) {
       case 1: //Get Connection Status
         //Testing hex:  BCFD01010000 (failure),  BCFD01010101 (success)
-        const status:H3status = {
-          hexStr:hexstr,
-          command:String(h3data.command),
-          status:String(h3data.data[0]==0?'Failure':'Success')
-        }
+        const status: H3status = {
+          hexStr: hexstr,
+          command: String(h3data.command),
+          status: String(h3data.data[0] == 0 ? "Failure" : "Success"),
+        };
 
-        res.status(200).json({
+        return {
           success: true,
           request: {
             decArray: decArray,
-            hexArray: hexArray
+            hexArray: hexArray,
           },
           response: status,
-        });        
+        };
         break;
 
       case 2: //Get Device Info
@@ -96,15 +83,14 @@ router.post("/h3/v1.0.0/parseH3", (req: Request, res: Response): void => {
           unit: parseUnit(h3data.data[4]),
         };
 
-        res.status(200).json({
+        return {
           success: true,
           request: {
             decArray: decArray,
-            hexArray: hexArray
+            hexArray: hexArray,
           },
           response: info,
-        });
-        break;
+        };
 
       case 3: //Get Device Model
         //Test hex: BCFD03066d6f64656c596A   result: modelY
@@ -115,14 +101,14 @@ router.post("/h3/v1.0.0/parseH3", (req: Request, res: Response): void => {
           model: parseAscii(h3data.data),
         };
 
-        res.status(200).json({
+        return {
           success: true,
           request: {
             decArray: decArray,
-            hexArray: hexArray
+            hexArray: hexArray,
           },
           response: model,
-        });
+        };
         break;
 
       case 4: //Get Device Serial Number
@@ -134,14 +120,14 @@ router.post("/h3/v1.0.0/parseH3", (req: Request, res: Response): void => {
           serial: parseAscii(h3data.data),
         };
 
-        res.status(200).json({
+        return {
           success: true,
           request: {
             decArray: decArray,
-            hexArray: hexArray
+            hexArray: hexArray,
           },
           response: serial,
-        });
+        };
         break;
 
       case 5: //Get latest setting time
@@ -149,69 +135,75 @@ router.post("/h3/v1.0.0/parseH3", (req: Request, res: Response): void => {
         //Timestamp: 1759460400
         //Time: 10/3/2025, 10:00:00 AM
 
-        const timeHere:string = parseTimestamp(h3data.data) //Return second value
+        const timeHere: string = parseTimestamp(h3data.data); //Return second value
 
         // const msec = Date.parse('10/03/2025 10:00:00')
         // const timeH = new Date(1759460400*1000).toLocaleString()
         // console.log("msec:", msec)
         // console.log("timeH: ", timeH)
 
-        const lastSet:H3lastSetTime = {
+        const lastSet: H3lastSetTime = {
           hexStr: hexstr,
           command: String(h3data.command),
           timeInSecond: timeHere, //second value
-          lastSet: new Date(parseInt(timeHere)*1000).toLocaleString()       
-        }
-
-        res.status(200).json({
-          success: true,
-          request: {
-            decArray: decArray,
-            hexArray: hexArray
-          },
-          response: lastSet,
-        });        
-        break
-
-      case 6: //Get latest record id
-        //Test hex: BCFD060203E8EB
-
-      const lastRec:H3lastRec = {
-        hexStr:hexstr,
-        command: String(h3data.command),
-        recordID: parseWord(h3data.data)          
-      }
-
-      res.status(200).json({
-        success: true,
-        request: {
-          decArray: decArray,
-          hexArray: hexArray
-        },
-        response: lastRec,
-      });       
-        break
-
-      case 9: //Get Result testing
-        //Test hex: BCFD090600001400004B5F
-
-        const report: H3report= {
-          hexStr: hexstr,
-          command: String(h3data.command),
-          status : parseStatus(h3data.data[0]),
-          value:parseInt((h3data.data[1].toString(16) + h3data.data[2].toString(16)),16).toString(),
-          unit: parseUnit(h3data.data[3]),
-          record:parseInt((h3data.data[4].toString(16) + h3data.data[5].toString(16)),16).toString(),
+          lastSet: new Date(parseInt(timeHere) * 1000).toLocaleString(),
         };
 
         res.status(200).json({
           success: true,
           request: {
             decArray: decArray,
-            hexArray: hexArray
+            hexArray: hexArray,
+          },
+          response: lastSet,
+        });
+        break;
+
+      case 6: //Get latest record id
+        //Test hex: BCFD060203E8EB
+
+        const lastRec: H3lastRec = {
+          hexStr: hexstr,
+          command: String(h3data.command),
+          recordID: parseWord(h3data.data),
+        };
+
+        return {
+          success: true,
+          request: {
+            decArray: decArray,
+            hexArray: hexArray,
+          },
+          response: lastRec,
+        };
+        break;
+
+      case 9: //Get Result testing
+        //Test hex: BCFD090600001400004B5F
+
+        const report: H3report = {
+          hexStr: hexstr,
+          command: String(h3data.command),
+          status: parseStatus(h3data.data[0]),
+          value: parseInt(
+            h3data.data[1].toString(16) + h3data.data[2].toString(16),
+            16
+          ).toString(),
+          unit: parseUnit(h3data.data[3]),
+          record: parseInt(
+            h3data.data[4].toString(16) + h3data.data[5].toString(16),
+            16
+          ).toString(),
+        };
+
+        return {
+          success: true,
+          request: {
+            decArray: decArray,
+            hexArray: hexArray,
           },
           response: report,
-        });
+        };
 
         break;
 
@@ -228,7 +220,10 @@ router.post("/h3/v1.0.0/parseH3", (req: Request, res: Response): void => {
         const record: H3record = {
           hexStr: hexstr,
           command: String(h3data.command),
-          record:parseInt((h3data.data[1].toString(16) + h3data.data[0].toString(16)),16).toString(),
+          record: parseInt(
+            h3data.data[1].toString(16) + h3data.data[0].toString(16),
+            16
+          ).toString(),
           dateStr:
             addLeadingZero(h3data.data[4]) +
             "/" +
@@ -245,25 +240,17 @@ router.post("/h3/v1.0.0/parseH3", (req: Request, res: Response): void => {
           value: parseAscii(h3data.data.slice(10)),
         };
 
-        res.status(200).json({
+        return {
           success: true,
           request: {
             decArray: decArray,
-            hexArray: hexArray
+            hexArray: hexArray,
           },
           response: record,
-        });
+        };
         break;
     }
   } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
-    res.status(400).json({
-      success: false,
-      error: errorMessage,
-    });
+    return error instanceof Error ? error.message : "Unknown error";
   }
-
-});
-
-export default router;
+};

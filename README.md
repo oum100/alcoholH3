@@ -1,7 +1,7 @@
 # bun-express
 
-This for parse hex string that returen from AlcohalH3 device support command
-0x01: Read connection status
+This for parse hex string that returen from AlcohalH3 device support command.
+0x01: Read connection status.
 0x02: Read Device Infomation (Version, Battery, Language, TestMode, Unit)
 0x03: Read Device Model
 0x04: Read Device Serial Number

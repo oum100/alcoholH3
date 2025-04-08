@@ -9,7 +9,16 @@ const router = express.Router();
 // router.use(express.json());
 
 router.get("/", (_: Request, res: Response): void => {
-  res.send("This is home.");
+  try {
+    res.send("This is home.");
+  }catch(error){
+    console.log(error)
+    res.status(500).json({
+      message: 'error',
+      error:error
+    })
+  }
+  
 });
 
 router.get("/about", (_: Request, res: Response): void => {
