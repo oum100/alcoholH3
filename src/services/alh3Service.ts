@@ -149,14 +149,14 @@ export const parseALH3 = async (req: Request, _: Response) => {
           lastSet: new Date(parseInt(timeHere) * 1000).toLocaleString(),
         };
 
-        res.status(200).json({
+        return {
           success: true,
           request: {
             decArray: decArray,
             hexArray: hexArray,
           },
           response: lastSet,
-        });
+        };
         break;
 
       case 6: //Get latest record id
